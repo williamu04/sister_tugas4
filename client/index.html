@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Messaging Service Sederhana</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        #messages { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; margin-bottom: 10px; }
+        #messageInput { width: calc(100% - 70px); padding: 8px; }
+        #sendButton { padding: 8px 12px; }
+    </style>
+</head>
+<body>
+
+    <h1>Messaging Service dengan WebSocket</h1>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Ketik pesan di sini...">
+    <button id="sendButton">Kirim</button>
+
+    <script>
+        // Sesuaikan alamat IP server jika tidak di komputer yang sama
+        const serverAddress = 'ws://localhost:8080';
+        
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        // Buat koneksi WebSocket
+        const ws = new WebSocket(serverAddress);
+
+        // Event listener saat koneksi berhasil
+        ws.onopen = function() {
+            console.log('Terhubung ke server!');
+            displayMessage('Anda terhubung!', 'status');
+        };
+
+        // Event listener saat menerima pesan dari server
+        ws.onmessage = function(event) {
+            console.log('Pesan diterima:', event.data);
+            displayMessage(event.data, 'received');
+        };
+
+        // Event listener saat koneksi terputus
+        ws.onclose = function() {
+            console.log('Koneksi terputus.');
+            displayMessage('Koneksi terputus!', 'status');
+        };
+
+        // Fungsi untuk mengirim pesan
+        sendButton.addEventListener('click', function() {
+            const message = messageInput.value.trim();
+            if (message) {
+                ws.send(message);
+                displayMessage(message, 'sent');
+                messageInput.value = ''; // Kosongkan input setelah dikirim
+            }
+        });
+
+        // Enter key juga bisa mengirim pesan
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+
+        // Fungsi untuk menampilkan pesan di UI
+        function displayMessage(message, type) {
+            const p = document.createElement('p');
+            p.textContent = message;
+            
+            // Tambahkan kelas untuk styling
+            if (type === 'sent') {
+                p.style.textAlign = 'right';
+                p.style.color = 'blue';
+            } else if (type === 'received') {
+                p.style.textAlign = 'left';
+                p.style.color = 'green';
+            } else if (type === 'status') {
+                p.style.fontStyle = 'italic';
+                p.style.color = '#888';
+            }
+            
+            messagesDiv.appendChild(p);
+            // Scroll ke pesan terbaru
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>
