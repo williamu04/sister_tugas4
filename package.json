@@ -12,7 +12,9 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "aws-sdk": "^2.1692.0",
     "express": "^5.1.0",
+    "multer": "^2.0.2",
     "websocket": "^1.0.35",
     "ws": "^8.18.3"
   }
